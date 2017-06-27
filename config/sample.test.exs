@@ -3,5 +3,5 @@
 use Mix.Config
 
 config :hedwig_weather,
-  location: "Abbotsford, BC",
-  darksky_key: ""
+  location: System.get_env("LOCATION"),
+  darksky_key: System.get_env("DARKSKY_KEY")

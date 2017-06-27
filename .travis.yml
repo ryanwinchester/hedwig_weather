@@ -6,7 +6,5 @@ matrix:
       elixir: 1.4
     - otp_release: 19.3
       elixir: 1.4
-    - otp_release: 20
-      elixir: 1.4
 before_script:
   - cp config/sample.test.exs config/test.exs

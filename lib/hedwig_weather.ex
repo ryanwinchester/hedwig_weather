@@ -29,7 +29,7 @@ defmodule Hedwig.Responders.Weather do
     defstruct [:geo, :temperature, :humidity, :currently, :hourly, :daily]
   end
 
-  @config HedwigWeather.Config.all(:hedwig_weather)
+  @config Config.get_all_env(:hedwig_weather)
   @api_key @config[:darksky_key]
   @location @config[:location] || "Vancouver, BC"
 

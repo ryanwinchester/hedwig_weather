@@ -102,7 +102,7 @@ defmodule Hedwig.Responders.Weather do
   # Replace temps in F in a string to C/F
   @spec replace_temps(String.t) :: String.t
   defp replace_temps(str) do
-    Regex.replace(~r/(\d+(?:\.\d+)?) ?°F/, str, fn _, temp ->
+    Regex.replace(~r/(-?\d+(?:\.\d+)?) ?°F/, str, fn _, temp ->
       {deg_f, _} = Float.parse(temp)
       deg_c = ((deg_f - 32) * (5/9)) |> round()
       deg_f = round(deg_f)

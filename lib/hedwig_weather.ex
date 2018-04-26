@@ -7,6 +7,9 @@ defmodule Hedwig.Responders.Weather do
   require Logger
 
   defmodule Geo do
+    @moduledoc """
+    Struct representing geo data
+    """
     @type t :: %__MODULE__ {
       lat: Float.t,
       lng: Float.t,
@@ -17,6 +20,9 @@ defmodule Hedwig.Responders.Weather do
   end
 
   defmodule Weather do
+    @moduledoc """
+    Struct representing weather data
+    """
     @type t :: %__MODULE__ {
       geo: Geo.t,
       temperature: Float.t,
@@ -108,9 +114,14 @@ defmodule Hedwig.Responders.Weather do
   defp replace_temps(str) do
     Regex.replace(~r/(-?\d+(?:\.\d+)?) ?°F/, str, fn _, temp ->
       {deg_f, _} = Float.parse(temp)
-      deg_c = ((deg_f - 32) * (5/9)) |> round()
+      deg_c = convert_fahrenheit_to_celsius(deg_f)
       deg_f = round(deg_f)
       "#{deg_c}°C (#{deg_f}°F)"
     end)
+  end
+
+  # Convert Fahrenheit degrees to Celsius
+  defp convert_fahrenheit_to_celsius(degrees) do
+    round((degrees - 32) * (5 / 9))
   end
 end

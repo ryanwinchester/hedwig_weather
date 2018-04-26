@@ -37,7 +37,7 @@ defmodule HedwigWeather.Mixfile do
     [
       {:hedwig, "~> 1.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
-      {:httpoison, "~> 0.11.2"},
+      {:httpoison, ">= 0.11.2"},
       {:poison, "~> 3.1"},
       {:runtime_config, "~> 0.1.0"},
     ]

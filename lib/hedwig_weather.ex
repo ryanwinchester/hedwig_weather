@@ -52,8 +52,9 @@ defmodule Hedwig.Responders.Weather do
   defp get_geo(loc) do
     geo_url = "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=#{URI.encode(loc)}&key=#{google_api_key()}"
 
-    case HTTPoison.get(geo_url) do
-      {:ok, %{status_code: 200, body: body}} ->
+    case http_client().get(geo_url) do
+      {:ok, %HedwigWeather.HTTPClient.Response{status_code: 200, body: body}} ->
+
         %{"results" => [res | _]} = Poison.decode!(body)
         %Geo{
           lat: res["geometry"]["location"]["lat"],
@@ -65,6 +66,8 @@ defmodule Hedwig.Responders.Weather do
     end
   end
 
+  defp http_client, do: Application.get_env(:hedwig_weather, :http_client)
+
   defp google_api_key, do: Application.get_env(:hedwig_weather, :google_key)
   defp api_key, do: Application.get_env(:hedwig_weather, :darksky_key)
 
@@ -73,8 +76,8 @@ defmodule Hedwig.Responders.Weather do
   defp get_weather(%Geo{lat: lat, lng: lng} = geo) do
     darksky_url = "https://api.darksky.net/forecast/#{api_key()}/#{lat},#{lng}"
 
-    case HTTPoison.get(darksky_url) do
-      {:ok, %{status_code: 200, body: body}} ->
+    case http_client().get(darksky_url) do
+      {:ok, %HedwigWeather.HTTPClient.Response{status_code: 200, body: body}} ->
         weather = Poison.decode!(body)
         Logger.debug inspect(weather["currently"])
         %Weather{

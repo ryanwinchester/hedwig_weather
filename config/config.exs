@@ -22,10 +22,9 @@ use Mix.Config
 #
 
 config :hedwig_weather,
-  location: {:system, "LOCATION"},
-  darksky_key: {:system, "DARKSKY_KEY"},
-  google_key: {:system, "GOOGLE_API_KEY"},
-  http_client: HedwigWeather.HTTPClient.Network
+  location: System.get_env("LOCATION"),
+  darksky_key: System.get_env("DARKSKY_KEY"),
+  google_key: System.get_env("GOOGLE_API_KEY")
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

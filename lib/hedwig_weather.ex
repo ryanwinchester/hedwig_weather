@@ -38,7 +38,7 @@ defmodule Hedwig.Responders.Weather do
   @location Application.get_env(:hedwig_weather, :location) || "Vancouver, BC"
 
   @usage """
-  hedwig weather <location> - gets the weather for the speified location
+  hedwig weather <location> - gets the weather for the specified location
   """
   respond ~r/weather(?: (.+))?$/i, msg do
     weather =

@@ -7,6 +7,9 @@ defmodule Hedwig.Responders.Weather do
   require Logger
 
   defmodule Geo do
+    @moduledoc """
+    Struct representing geo data
+    """
     @type t :: %__MODULE__ {
       lat: Float.t,
       lng: Float.t,
@@ -17,6 +20,9 @@ defmodule Hedwig.Responders.Weather do
   end
 
   defmodule Weather do
+    @moduledoc """
+    Struct representing weather data
+    """
     @type t :: %__MODULE__ {
       geo: Geo.t,
       temperature: Float.t,
@@ -29,12 +35,10 @@ defmodule Hedwig.Responders.Weather do
     defstruct [:geo, :temperature, :humidity, :currently, :hourly, :daily]
   end
 
-  @config Config.get_all_env(:hedwig_weather)
-  @api_key @config[:darksky_key]
-  @location @config[:location] || "Vancouver, BC"
+  @location Application.get_env(:hedwig_weather, :location) || "Vancouver, BC"
 
   @usage """
-  hedwig weather <location> - gets the weather for the speified location
+  hedwig weather <location> - gets the weather for the specified location
   """
   respond ~r/weather(?: (.+))?$/i, msg do
     weather =
@@ -52,10 +56,11 @@ defmodule Hedwig.Responders.Weather do
   defp get_geo(nil), do: get_geo(@location)
   defp get_geo([loc | _]), do: get_geo(loc)
   defp get_geo(loc) do
-    geo_url = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=#{URI.encode(loc)}"
+    geo_url = "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=#{URI.encode(loc)}&key=#{google_api_key()}"
 
-    case HTTPoison.get(geo_url) do
-      {:ok, %{status_code: 200, body: body}} ->
+    case http_client().get(geo_url) do
+      {:ok, %HedwigWeather.HTTPClient.Response{status_code: 200, body: body}} ->
+
         %{"results" => [res | _]} = Poison.decode!(body)
         %Geo{
           lat: res["geometry"]["location"]["lat"],
@@ -67,13 +72,18 @@ defmodule Hedwig.Responders.Weather do
     end
   end
 
+  defp http_client, do: Application.get_env(:hedwig_weather, :http_client)
+
+  defp google_api_key, do: Application.get_env(:hedwig_weather, :google_key)
+  defp api_key, do: Application.get_env(:hedwig_weather, :darksky_key)
+
   # Get the weather info from Darksky
   @spec get_weather(Geo.t) :: Weather.t
   defp get_weather(%Geo{lat: lat, lng: lng} = geo) do
-    darksky_url = "https://api.darksky.net/forecast/#{@api_key}/#{lat},#{lng}"
+    darksky_url = "https://api.darksky.net/forecast/#{api_key()}/#{lat},#{lng}"
 
-    case HTTPoison.get(darksky_url) do
-      {:ok, %{status_code: 200, body: body}} ->
+    case http_client().get(darksky_url) do
+      {:ok, %HedwigWeather.HTTPClient.Response{status_code: 200, body: body}} ->
         weather = Poison.decode!(body)
         Logger.debug inspect(weather["currently"])
         %Weather{
@@ -104,9 +114,14 @@ defmodule Hedwig.Responders.Weather do
   defp replace_temps(str) do
     Regex.replace(~r/(-?\d+(?:\.\d+)?) ?°F/, str, fn _, temp ->
       {deg_f, _} = Float.parse(temp)
-      deg_c = ((deg_f - 32) * (5/9)) |> round()
+      deg_c = convert_fahrenheit_to_celsius(deg_f)
       deg_f = round(deg_f)
       "#{deg_c}°C (#{deg_f}°F)"
     end)
+  end
+
+  # Convert Fahrenheit degrees to Celsius
+  defp convert_fahrenheit_to_celsius(degrees) do
+    round((degrees - 32) * (5 / 9))
   end
 end

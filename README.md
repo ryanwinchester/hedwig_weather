@@ -1,10 +1,5 @@
 # Hedwig Weather Responder
 
-[![Hex.pm](https://img.shields.io/hexpm/v/hedwig_weather.svg)](https://hex.pm/packages/hedwig_weather)
- [![Hex.pm](https://img.shields.io/hexpm/l/hedwig_weather.svg)](https://hex.pm/packages/hedwig_weather)
- [![Hex.pm](https://img.shields.io/hexpm/dt/hedwig_weather.svg)](https://hex.pm/packages/hedwig_weather)
- [![Build Status](https://travis-ci.org/ryanwinchester/hedwig_weather.svg?branch=master)](https://travis-ci.org/ryanwinchester/hedwig_weather)
-
 ## Installation
 
 Add to the deps in `mix.exs`
@@ -12,7 +7,7 @@ Add to the deps in `mix.exs`
 ```elixir
 def deps do
   [
-    {:hedwig_weather, "~> 0.1.0"},
+    {:hedwig_weather, git: "git@github.com:matzko/hedwig_weather.git", tag: "0.1.4"}
   ]
 end
 ```
@@ -32,11 +27,13 @@ config :my_robot, MyApp.MyRobot,
 
 - `LOCATION` environment variable for the default location
 - `DARKSKY_KEY` environment variable for your [darksky.net](https://darksky.net) API key
+- `GOOGLE_API_KEY` environment variable for your [googleapis.com](https://googleapis.com) API key
 
 Or, you can override the config, like so:
 
 ```elixir
 config :hedwig_weather,
   location: "Abbotsford, BC",
-  darksky_key: "abcdefg12345678"
+  darksky_key: "abcdefg12345678",
+  google_key: "12345"
 ```

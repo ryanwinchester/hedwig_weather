@@ -48,7 +48,7 @@ defmodule Hedwig.Responders.Weather do
   defp get_geo(nil), do: get_geo(location())
   defp get_geo([loc | _]), do: get_geo(loc)
   defp get_geo(loc) do
-    geo_url = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=#{URI.encode(loc)}"
+    geo_url = "http://maps.googleapis.com/maps/api/geocode/json?key=#{google_key()}&sensor=false&address=#{URI.encode(loc)}"
 
     case HTTPoison.get(geo_url) do
       {:ok, %{status_code: 200, body: body}} ->
@@ -108,5 +108,6 @@ defmodule Hedwig.Responders.Weather do
 
   defp config, do: Config.get_all_env(:hedwig_weather)
   defp api_key, do: config()[:darksky_key]
+  defp google_key, do: config()[:google_key]
   defp location, do: config()[:location] || "Vancouver, BC"
 end

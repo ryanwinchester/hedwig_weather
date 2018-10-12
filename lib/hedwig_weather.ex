@@ -29,10 +29,6 @@ defmodule Hedwig.Responders.Weather do
     defstruct [:geo, :temperature, :humidity, :currently, :hourly, :daily]
   end
 
-  @config Config.get_all_env(:hedwig_weather)
-  @api_key @config[:darksky_key]
-  @location @config[:location] || "Vancouver, BC"
-
   @usage """
   hedwig weather <location> - gets the weather for the speified location
   """
@@ -49,7 +45,7 @@ defmodule Hedwig.Responders.Weather do
 
   # Get the geographic info from Google Maps
   @spec get_geo(String.t | [String.t] | nil) :: Geo.t
-  defp get_geo(nil), do: get_geo(@location)
+  defp get_geo(nil), do: get_geo(location())
   defp get_geo([loc | _]), do: get_geo(loc)
   defp get_geo(loc) do
     geo_url = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=#{URI.encode(loc)}"
@@ -70,7 +66,7 @@ defmodule Hedwig.Responders.Weather do
   # Get the weather info from Darksky
   @spec get_weather(Geo.t) :: Weather.t
   defp get_weather(%Geo{lat: lat, lng: lng} = geo) do
-    darksky_url = "https://api.darksky.net/forecast/#{@api_key}/#{lat},#{lng}"
+    darksky_url = "https://api.darksky.net/forecast/#{api_key()}/#{lat},#{lng}"
 
     case HTTPoison.get(darksky_url) do
       {:ok, %{status_code: 200, body: body}} ->
@@ -109,4 +105,8 @@ defmodule Hedwig.Responders.Weather do
       "#{deg_c}°C (#{deg_f}°F)"
     end)
   end
+
+  defp config, do: Config.get_all_env(:hedwig_weather)
+  defp api_key, do: config()[:darksky_key]
+  defp location, do: config()[:location] || "Vancouver, BC"
 end
